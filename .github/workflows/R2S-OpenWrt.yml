@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: 00 22 * * *
+    - cron: 00 21 */3 * *
 
 jobs:
   build:
@@ -151,9 +151,9 @@ jobs:
       id: create_release
       uses: ncipollo/release-action@v1.8.0
       with:
-        name: R2S-21.02
+        name: R2S-OpenWRT-21.02
         allowUpdates: true
-        tag: 21-02
+        tag: OpenWRT-21.02
         commit: master
         replacesArtifacts: true
         token: ${{ secrets.workflow_token }}
