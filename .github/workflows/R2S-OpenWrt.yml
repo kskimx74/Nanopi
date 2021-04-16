@@ -14,10 +14,9 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
-    
     - name: Checkout
       uses: actions/checkout@main
-    
+
     - name: Show system
       run: |
         echo -e "Total CPU cores\t: $(nproc)"
@@ -28,7 +27,7 @@ jobs:
         [ -f /etc/issue.net ] && cat /etc/issue.net
         [ -f /etc/issue ] && cat /etc/issue
         ulimit -a
-    
+
     - name: Free disk space
       run: |
         sudo -E swapoff -a
@@ -41,7 +40,7 @@ jobs:
         sudo -E rm -rf /usr/share/dotnet /usr/local/lib/android/sdk /etc/mysql /etc/php /usr/local/share/boost
         [ -n "$AGENT_TOOLSDIRECTORY" ] && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
         df -h
-    
+
     - name: Init build dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -53,37 +52,37 @@ jobs:
         sudo -E apt-get clean -y
         git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
         df -h
-    
+
     - name: Prepare Mixedwrt
       run: |
         sudo chown -R runner:runner /home/runner/work/R2S
         cp -r ./SCRIPTS/R2S/. ./SCRIPTS/
         cp -r ./SCRIPTS/. ./
         /bin/bash 01_get_ready.sh
-    
+
     - name: Prepare Package
       run: |
         cd openwrt
         cp -r ../SCRIPTS/. ./
         /bin/bash 02_prepare_package.sh
         /bin/bash 02_target_only.sh
-    
+
     - name: Convert Translation
       run: |
         cd openwrt
         /bin/bash 03_convert_translation.sh
-    
+
     - name: Add ACL
       run: |
         cd openwrt
         /bin/bash 05_create_acl_for_luci.sh -a
-    
+
     - name: Make Config
       run: |
         cd openwrt
         mv ../SEED/R2S/config.seed .config
         make defconfig
-    
+
     - name: Smart chmod
       run: |
         MY_Filter=$(mktemp)
@@ -93,40 +92,40 @@ jobs:
         find ./ -type f | grep -v -f ${MY_Filter} | xargs -s1024 file | grep 'executable\|ELF' | cut -d ':' -f1 | xargs -s1024 chmod 755
         rm -f ${MY_Filter}
         unset MY_Filter
-    
+
     - name: Make Download
       run: |
         df -h
         cd openwrt
-        make download -j10
-    
+        make download -j50
+
     - name: Make Toolchain
       run: |
         df -h
         cd openwrt
-        let make_process=$(nproc)+1
+        let make_process=$(nproc)+2
         make toolchain/install -j${make_process} V=s
-    
+
     - name: Compile Openwrt
       id: compileopenwrt
       continue-on-error: true
       run: |
         df -h
         cd openwrt
-        let Make_Process=$(nproc)+1
+        let Make_Process=$(nproc)+2
         make -j${Make_Process} V=w
         echo $?
-    
+
     - name: If Error
       if: steps.compileopenwrt.outcome == 'failure'
       run: |
         cat openwrt/.config
         echo '================================================================'
         cd openwrt && make -j1 V=s
-    
+
     - name: Print Disk Space After
       run: df -h
-    
+
     - name: Organize files
       id: organize
       run: |
@@ -138,9 +137,9 @@ jobs:
         gzip -d *.gz && exit 0
         gzip --best *.img
         ls -Ahl
-        sha256sum openwrt*r2s* | tee R2S-$(date +%Y-%m-%d)-21.02.sha256sum
-        zip R2S-$(date +%Y-%m-%d)-21.02-ext4.zip *r2s*ext4*
-        zip R2S-$(date +%Y-%m-%d)-21.02-sfs.zip *r2s*squashfs*
+        sha256sum openwrt*r2s* | tee R2S-GC404-$(date +%Y-%m-%d)-21.02.sha256sum
+        zip R2S-GC404-$(date +%Y-%m-%d)-21.02-ext4.zip *r2s*ext4*
+        zip R2S-GC404-$(date +%Y-%m-%d)-21.02-sfs.zip *r2s*squashfs*
         ls -Ahl
     
     - name: Upload artifact
