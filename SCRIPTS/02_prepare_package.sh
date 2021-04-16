@@ -18,9 +18,10 @@ rm -rf ./include/download.mk
 wget -P scripts/ https://github.com/immortalwrt/immortalwrt/raw/master/scripts/download.pl
 wget -P include/ https://github.com/immortalwrt/immortalwrt/raw/master/include/download.mk
 wget -P include/ https://github.com/immortalwrt/immortalwrt/raw/master/include/package-immortalwrt.mk
+sed -i '/unshift/d' scripts/download.pl
 
 #临时补丁
-wget -qO - https://github.com/openwrt/openwrt/commit/7fae64.patch | patch -p1
+#wget -qO - https://github.com/openwrt/openwrt/commit/7fae64.patch | patch -p1
 
 ### 必要的 Patches ###
 # Patch arm64 型号名称
@@ -229,7 +230,8 @@ svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06/applications/l
 svn co https://github.com/fw876/helloworld/trunk/luci-app-ssr-plus package/lean/luci-app-ssr-plus
 rm -rf ./package/lean/luci-app-ssr-plus/po/zh_Hans
 pushd package/lean
-#wget -qO - https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/442.patch | patch -p1
+wget -qO - https://github.com/QiuSimons/helloworld-fw876/commit/b1a2d3c.patch | patch -p1
+wget -qO - https://github.com/QiuSimons/helloworld-fw876/commit/c1674ad.patch | patch -p1
 popd
 pushd package/lean/luci-app-ssr-plus
 sed -i 's,default n,default y,g' Makefile
