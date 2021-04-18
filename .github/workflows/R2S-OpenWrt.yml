@@ -1,12 +1,7 @@
 name: R2S-OpenWrt
 
-on:  
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-    ref: refs/heads/master
-  schedule:
-    - cron: 00 21 */3 * *
+on:
+  repository_dispatch:
 
 jobs:
   build:
