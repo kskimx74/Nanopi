@@ -48,7 +48,6 @@ wget -qO- https://github.com/a0575/R2S/raw/master/scripts/update.sh | ver=-slim 
 
 ### R2S 2020版 稳定固件:  
 
-```
 https://github.com/00575/nanopi-R2S/releases
-```
+
 
