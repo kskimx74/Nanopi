@@ -17,11 +17,19 @@ slim版固件只有OpenWrt本体，但内置了“本地软件源”，包含大
 
 使用在线升级时，根分区会自动扩容，方便折腾
 
-### 生成自己所需固件
+### 1-3分钟生成自己所需固件
 
-因为本项目预编译的Image builder，生成固件仅需1-3分钟，如果有兴趣自定义固件可以Fork本项目，
-编辑r2s.config.seed文件，删除不需要的luci app软件包配置行，
-添加自己所需的软件
+[ Fork ]本项目，
+
+编辑[ r2s.config.seed ]文件，删除不需要的luci app软件包配置行， 添加自己所需的软件
+
+完成之后进入[ Actions ]，点击左侧[ 自编译模板 ]，
+
+点击右侧[ Run workflow ]
+
+输入你的设备名称（支持r2s r4s r1s r1s-h3 r1p）
+
+然后点击[ Run ] 即可获取自己所需的固件
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -38,17 +46,9 @@ wget -qO- https://github.com/a0575/R2S/raw/master/scripts/update.sh | ver=-slim 
 ```
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-### R2S自用精简固件 在线升级:  
-先安装好依赖
+### R2S 2020版 稳定固件:  
 
-```bash
-opkg update
-opkg install zstd
-opkg install libzstd
 ```
-然后下载脚本执行
-
-```bash
-wget -qO- https://github.com/00575/nanopi-R2S/raw/master/scripts/autoupdate.sh | sh
+https://github.com/00575/nanopi-R2S/releases
 ```
 
