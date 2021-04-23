@@ -1,4 +1,4 @@
-### 固件发布地址：
+### R2S-immortalwrt固件发布地址：
 https://github.com/a0575/R2S/releases
 
 登录IP：192.168.2.1
