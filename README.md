@@ -1,38 +1,15 @@
-### 固件发布地址：
+固件发布地址：
+
 https://github.com/a0575/R2S/releases
 
-登录IP：192.168.2.1
+基于原生 OpenWrt 21.02 编译，默认管理地址192.168.1.1
 
-默认用户名：root
+同时支持 SFE/Software Offload （选则其一开启，默认开启Software Offload）
 
-密码：password
+内置升级功能可用，物理 Reset 按键可用
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+预配置了部分插件（包括但不限于 DNS 套娃，使用时先将 SSRP 的 DNS 上游提前选成本机5335端口，然后再 ADG 中勾上启用就好*“管理账户root，密码admin”，如果要作用于路由器本身，可以把lan和wan的dns都配置成127.0.0.1，dhcp高级里设置下发dns 6,192.168.1.1。注：这里取决于你设定的路由的ip地址）
 
-### 终端内在线升级方法： 
+正式 Release 版本将具有可无脑 opkg kmod 的特性
 
-```bash
-wget -qO- https://github.com/a0575/R2S/raw/master/scripts/update.sh | sh
-```
-
-slim纯净版
-
-```bash
-wget -qO- https://github.com/a0575/R2S/raw/master/scripts/update.sh | ver=-slim sh
-```
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-### R2S自用精简固件 在线升级:  
-先安装好依赖
-
-```bash
-opkg update
-opkg install zstd
-opkg install libzstd
-```
-然后下载脚本执行
-
-```bash
-wget -qO- https://github.com/00575/nanopi-R2S/raw/master/scripts/autoupdate.sh | sh
-```
-
+R2S核心频率1.6（交换了LAN WAN），R4S核心频率2.2/1.8（建议使用5v4a电源）
