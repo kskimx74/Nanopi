@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      TG: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      DEPLOY_SSHKEY: ${{ secrets.SSH_KEY }}
     if: github.repository_owner=='a0575'
 
     steps:
@@ -35,72 +33,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Checkout
-        run: |
-          cd
-          curl -sL https://raw.githubusercontent.com/00575/R2S/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
-          for i in {1..10}
-          do
-            curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break
-          done | zstdmt -d -o lede.img || (truncate -s 20g lede.img && mkfs.btrfs -M lede.img)
-          LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
-          sudo losetup -P --direct-io $LOOP_DEVICE lede.img
-          mkdir lede && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lede
-          if [ -d 'lede/.git' ]; then
-          cd lede && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
-          git fetch && git reset --hard origin/openwrt-18.06-k5.4
-          else
-          sudo chown $USER:$(id -gn) lede && git clone -b openwrt-18.06-k5.4 --single-branch https://github.com/immortalwrt/immortalwrt lede
-          fi
-      
-      - name: Update feeds and packages
-        run: |
-          cd ~/lede
-          if [ -d 'feeds' ]; then
-            pushd feeds/packages; git restore .; popd
-            pushd feeds/luci; git restore .; popd
-            pushd feeds/routing; git restore .; popd
-            pushd feeds/telephony; git restore .; popd
-          fi
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          . $GITHUB_WORKSPACE/merge_packages.sh
-          . $GITHUB_WORKSPACE/patches.sh
-          cd
-          svn export https://github.com/openwrt/luci/branches/openwrt-18.06 luci
-          echo > more_luci.txt
-          pushd luci
-          ls -d */ | xargs -n1 -i diff -q {} ../lede/feeds/luci/{} | grep Only | grep lede | grep -E applications\|themes | awk '{print $4}' | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> ~/lede/more_luci.txt
-          popd
-      
-      - name: Custom configure file
-        run: |
-          cd ~/lede
-          cat $GITHUB_WORKSPACE/$DEVICE.config.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
-          find package/ -type d -name luci-app-* | rev | cut -d'/' -f1 | rev | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> .config
-          cat $GITHUB_WORKSPACE/extra_packages.seed >> .config
-          cat more_luci.txt >> .config
-          make defconfig && cat .config
-      
-      - name: Build and deploy packages
-        run: |
-          cd ~/lede
-          while true; do make download -j && break || true; done
-          make package/feeds/packages/trojan-plus/clean
-          make package/feeds/packages/trojan/clean
-          make package/lean/qBittorrent-Enhanced-Edition/clean
-          make -j$[`nproc`+1] IGNORE_ERRORS=1
-          mv `ls ~/lede/bin/targets/*/*/*imagebuilder*xz` ~/ib-$DEVICE.tar.xz
-          
-          echo "======================="
-          echo "Space usage:"
-          echo "======================="
-          df -h
-          echo "======================="
-          du -h --max-depth=1 ./ --exclude=build_dir --exclude=bin
-          du -h --max-depth=1 ./build_dir
-          du -h --max-depth=1 ./bin
-
   generate_slim_firmware:
     needs: build_packages
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
@@ -117,7 +49,7 @@ jobs:
       - name: Generate firmware
         run: |
           sudo sysctl vm.swappiness=0
-          curl -L https://github.com/klever1988/sshactions/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
+          curl -L https://github.com/00575/Nanopi/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
           mv *imagebuilder* ib && cd ib
           . $GITHUB_WORKSPACE/merge_files.sh
           mkdir -p files/local_feed && sudo mount --bind packages files/local_feed
@@ -160,7 +92,7 @@ jobs:
       - name: Generate firmware
         run: |
           sudo sysctl vm.swappiness=0
-          curl -L https://github.com/klever1988/sshactions/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
+          curl -L https://github.com/00575/Nanopi/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
           mv *imagebuilder* ib && cd ib
           . $GITHUB_WORKSPACE/merge_files.sh
           sed -i '/local/d;s/#//' files/etc/opkg/distfeeds.conf
@@ -205,7 +137,7 @@ jobs:
       - name: Generate firmware
         run: |
           sudo sysctl vm.swappiness=0
-          curl -L https://github.com/klever1988/sshactions/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
+          curl -L https://github.com/00575/Nanopi/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
           mv *imagebuilder* ib && cd ib
           . $GITHUB_WORKSPACE/merge_files.sh
           sed -i '/local/d;s/#//' files/etc/opkg/distfeeds.conf
