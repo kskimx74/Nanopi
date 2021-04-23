@@ -143,15 +143,25 @@ jobs:
       with:
         name: OpenWRT_21.02
         path: ./artifact/
-
-    - name: Create release
-      id: create_release
-      uses: ncipollo/release-action@v1.8.0
+        
+    - name: Upload release asset
+      uses: svenstaro/upload-release-action@v2
       with:
-        name: R2S-OpenWRT-21.02
-        allowUpdates: true
+        repo_token: ${{ secrets.workflow_token }}
+        file: ./artifact/*.zip
         tag: OpenWRT-21.02
-        commit: master
-        replacesArtifacts: true
-        token: ${{ secrets.workflow_token }}
-        artifacts: ./artifact/*.zip
+        file_glob: true
+        overwrite: true
+        release_name: R4S-OpenWRT-21.02        
+
+    #- name: Create release
+      #id: create_release
+      #uses: ncipollo/release-action@v1.8.0
+      #with:
+        #name: R2S-OpenWRT-21.02
+        #allowUpdates: true
+        #tag: OpenWRT-21.02
+        #commit: main
+        #replacesArtifacts: true
+        #token: ${{ secrets.workflow_token }}
+        #artifacts: ./artifact/*.zip
