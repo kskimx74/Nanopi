@@ -1,6 +1,6 @@
 固件发布地址：
 
-https://github.com/a0575/R2S/releases
+https://github.com/a0575/Nanopi/releases
 
 基于原生 OpenWrt 21.02 编译，默认管理地址192.168.1.1
 
